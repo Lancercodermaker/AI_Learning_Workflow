@@ -27,6 +27,7 @@ describe('MaterialStore', () => {
     const store = new MaterialStore('C:/learning-store-test');
     expect(() => store.getMaterialDir('../outside')).toThrow(/material ID/);
     expect(() => store.getMaterialDir('nested/material')).toThrow(/material ID/);
+    expect(store.getMaterialDir('bilibili:BV1fixture')).toContain('bilibili-BV1fixture');
   });
 
   it('appends structured JSONL stage logs', async () => {

@@ -17,17 +17,19 @@ const stageFileName = (stage: string): string => {
 };
 
 const validateMaterialId = (materialId: string): string => {
-  if (!/^[A-Za-z0-9_-]+$/.test(materialId) || materialId.includes('..')) {
+  if (!/^[A-Za-z0-9:_-]+$/.test(materialId) || materialId.includes('..')) {
     throw new Error('invalid material ID');
   }
   return materialId;
 };
 
+const storageDirectoryName = (materialId: string): string => materialId.replace(/:/g, '-');
+
 export class MaterialStore {
   constructor(private readonly rootDir: string) {}
 
   getMaterialDir(materialId: string): string {
-    return join(this.rootDir, 'data', 'materials', validateMaterialId(materialId));
+    return join(this.rootDir, 'data', 'materials', storageDirectoryName(validateMaterialId(materialId)));
   }
 
   async readStage<T>(materialId: string, stage: string): Promise<T | null> {
