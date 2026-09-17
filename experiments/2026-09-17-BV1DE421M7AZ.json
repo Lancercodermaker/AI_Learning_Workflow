@@ -1,0 +1,29 @@
+{
+  "bvid": "BV1DE421M7AZ",
+  "started_at": "2026-09-17T17:27:29.384Z",
+  "tools": {
+    "yt_dlp": true,
+    "ffmpeg": true,
+    "ocr": true
+  },
+  "source": {
+    "metadata": "pass",
+    "transcript": "fail",
+    "video": "fail"
+  },
+  "transcript_cues": 0,
+  "fixed_windows": 0,
+  "semantic_boundaries": 0,
+  "frame_candidates": 0,
+  "selected_frames": 0,
+  "comparisons": {
+    "scene_only": "not run",
+    "frame_difference_only": "not run",
+    "semantic_visual_ocr": "not run"
+  },
+  "observations": [
+    "metadata: public record found; subtitle track groups=1",
+    "transcript: unavailable after 3 attempts"
+  ],
+  "stop_reason": "source_unavailable: timestamped transcript"
+}

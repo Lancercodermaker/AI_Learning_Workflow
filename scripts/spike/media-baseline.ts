@@ -47,6 +47,16 @@ type SemanticSegment = {
 const MAX_ATTEMPTS = 3;
 const SAMPLE_SECONDS = 30;
 const FRAME_INTERVAL_SECONDS = 5;
+const BILI_USER_AGENT = 'Mozilla/5.0';
+
+export function buildYtDlpArgs(args: string[]): string[] {
+  return [
+    '--proxy', '',
+    '--add-header', `User-Agent: ${BILI_USER_AGENT}`,
+    '--add-header', 'Referer: https://www.bilibili.com/',
+    ...args,
+  ];
+}
 
 const runProcess = (command: string, args: string[], cwd?: string): Promise<CommandResult> =>
   new Promise((resolve, reject) => {
@@ -249,8 +259,7 @@ async function runSpike(bvid: string): Promise<SpikeResult> {
 
     const sourceUrl = `https://www.bilibili.com/video/${bvid}`;
     const metadata = await withRetries('metadata', result.observations, async () => {
-      const command = await runProcess('python', [
-        '-m', 'yt_dlp',
+      const command = await runProcess('python', ['-m', 'yt_dlp', ...buildYtDlpArgs([
         '--dump-single-json',
         '--write-subs',
         '--write-auto-subs',
@@ -260,7 +269,7 @@ async function runSpike(bvid: string): Promise<SpikeResult> {
         '--quiet',
         '--output', join(workDirectory, '%(id)s.%(ext)s'),
         sourceUrl,
-      ], workDirectory);
+      ])], workDirectory);
       if (command.code !== 0) throw new Error('metadata command failed');
       const record = extractJsonRecord(command.stdout);
       if (!record) throw new Error('metadata JSON missing');
@@ -300,8 +309,7 @@ async function runSpike(bvid: string): Promise<SpikeResult> {
     }
 
     const videoPath = await withRetries('video sample', result.observations, async () => {
-      const command = await runProcess('python', [
-        '-m', 'yt_dlp',
+      const command = await runProcess('python', ['-m', 'yt_dlp', ...buildYtDlpArgs([
         '--format', 'bv*[height<=720]+ba/b[height<=720]/b',
         '--merge-output-format', 'mp4',
         '--download-sections', '*0-30',
@@ -311,7 +319,7 @@ async function runSpike(bvid: string): Promise<SpikeResult> {
         '--quiet',
         '--output', join(workDirectory, 'sample.%(ext)s'),
         sourceUrl,
-      ], workDirectory);
+      ])], workDirectory);
       if (command.code !== 0) throw new Error('bounded video download failed');
       const candidates = await listFiles(workDirectory, ['.mp4', '.mkv', '.webm']);
       const sample = candidates[0];

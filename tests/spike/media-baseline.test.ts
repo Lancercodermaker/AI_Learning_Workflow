@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseVtt, sanitizeBvid } from '../../scripts/spike/media-baseline';
+import { buildYtDlpArgs, parseVtt, sanitizeBvid } from '../../scripts/spike/media-baseline';
 
 describe('media baseline helpers', () => {
   it('accepts a BVID and rejects shell-shaped input', () => {
@@ -13,6 +13,15 @@ describe('media baseline helpers', () => {
     expect(cues).toEqual([
       { start: 1, end: 4.5, text: 'Hello world.' },
       { start: 6, end: 8, text: 'Second cue' },
+    ]);
+  });
+
+  it('makes source requests independent of the ambient proxy configuration', () => {
+    expect(buildYtDlpArgs(['--dump-single-json'])).toEqual([
+      '--proxy', '',
+      '--add-header', 'User-Agent: Mozilla/5.0',
+      '--add-header', 'Referer: https://www.bilibili.com/',
+      '--dump-single-json',
     ]);
   });
 });
