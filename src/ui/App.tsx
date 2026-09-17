@@ -135,7 +135,7 @@ export function App({ initialMaterial = null, api = learningApi }: AppProps) {
                 </nav>
                 <div className="map-canvas" aria-label="knowledge map overview">
                   <div className="map-grid-lines" />
-                  {material.segments.length ? material.segments.map((segment, index) => <button key={segment.id} className={selectedNode === segment.id ? 'map-node selected' : 'map-node'} style={{ '--node-index': index } as React.CSSProperties} onClick={() => setSelectedNode(segment.id)}>{segment.topic}<small>{segment.start.toFixed(0)}–{segment.end.toFixed(0)}s</small></button>) : <p className="map-empty">No transcript-derived segments yet.</p>}
+                  {material.segments.length ? material.segments.map((segment, index) => <button key={segment.id} className={selectedNode === segment.id ? 'map-node selected' : 'map-node'} style={{ left: `${12 + (index % 4) * 23}%`, top: index % 2 ? '58%' : '28%', '--node-index': index } as React.CSSProperties} onClick={() => setSelectedNode(segment.id)}>{segment.topic}<small>{segment.start.toFixed(0)}–{segment.end.toFixed(0)}s</small></button>) : <p className="map-empty">No transcript-derived segments yet.</p>}
                 </div>
               </div>
               <p className="showing-count">showing {visibleSegments.length} / {material.segments.length}</p>

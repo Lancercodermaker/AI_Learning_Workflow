@@ -14,6 +14,7 @@ describe('map-first workbench', () => {
     expect(markup).toContain('showing 1 / 1');
     expect(markup).toContain('SOURCE_CLAIM');
     expect(markup).toContain('https://www.bilibili.com/video/BV1fixture?t=0');
+    expect(markup).toContain('left:12%;top:28%');
   });
 
   it('keeps evidence visible and exposes retry when analysis is partial', () => {

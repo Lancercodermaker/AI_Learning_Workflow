@@ -65,7 +65,7 @@ dd { color: var(--ink); font-weight: 700; margin: 5px 0 0; }
 .node-button.active { background: #242a1e; border-color: var(--acid); color: var(--ink); }
 .map-canvas { background: #13151a; border: 1px solid var(--line); min-height: 286px; overflow: hidden; padding: 30px; position: relative; }
 .map-grid-lines { background-image: linear-gradient(#2a2e37 1px, transparent 1px), linear-gradient(90deg, #2a2e37 1px, transparent 1px); background-size: 42px 42px; inset: 0; opacity: .35; position: absolute; }
-.map-node { background: #202832; border: 1px solid var(--blue); color: var(--ink); left: calc(12% + var(--node-index) * 23%); max-width: 180px; min-height: 72px; padding: 12px; position: absolute; top: calc(28% + (var(--node-index) % 2) * 30%); text-align: left; z-index: 1; }
+.map-node { background: #202832; border: 1px solid var(--blue); color: var(--ink); max-width: 180px; min-height: 72px; padding: 12px; position: absolute; text-align: left; z-index: 1; }
 .map-node.selected { background: #303d58; box-shadow: 0 0 0 3px #9eb7ff44; }
 .map-node small { color: var(--muted); display: block; font-family: ui-monospace, monospace; margin-top: 6px; }
 .map-empty { color: var(--muted); position: relative; z-index: 1; }

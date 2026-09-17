@@ -22,3 +22,12 @@ after its first attempt, then the first unavailable stage is recorded as the
 stop reason. The spike passes only when one real public teaching video produces
 timestamped transcript material, a source frame set, an inspectable semantic
 segment, and all three selection comparisons.
+
+## Final run
+
+The current real run is recorded in [2026-09-17-BV1DE421M7AZ.json](./2026-09-17-BV1DE421M7AZ.json).
+Metadata access passed, but this source exposed no public timestamped subtitle
+track. The runner stopped at the transcript stage, so it intentionally did not
+fabricate frames, semantic segments, or signal comparisons. See the browser
+acceptance checklist for the exact partial result and the next required source
+condition.
