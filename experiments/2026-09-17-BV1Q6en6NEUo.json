@@ -1,0 +1,28 @@
+{
+  "bvid": "BV1Q6en6NEUo",
+  "started_at": "2026-09-17T17:12:43.004Z",
+  "tools": {
+    "yt_dlp": true,
+    "ffmpeg": true,
+    "ocr": true
+  },
+  "source": {
+    "metadata": "fail",
+    "transcript": "fail",
+    "video": "fail"
+  },
+  "transcript_cues": 0,
+  "fixed_windows": 0,
+  "semantic_boundaries": 0,
+  "frame_candidates": 0,
+  "selected_frames": 0,
+  "comparisons": {
+    "scene_only": "not run",
+    "frame_difference_only": "not run",
+    "semantic_visual_ocr": "not run"
+  },
+  "observations": [
+    "metadata: unavailable after 3 attempts"
+  ],
+  "stop_reason": "source_unavailable: metadata"
+}

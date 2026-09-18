@@ -1,0 +1,8 @@
+{
+  "bvid": "BV1fixture",
+  "title": "Controlled learning metadata fixture",
+  "uploader": "Fixture teacher",
+  "duration_seconds": 120,
+  "description": "Fixture metadata for deterministic ingestion tests.",
+  "chapters": [{ "id": "c01", "start": 0, "end": 120, "title": "Basics" }]
+}
