@@ -12,7 +12,8 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "spike:media": "tsx scripts/spike/media-baseline.ts"
+    "spike:media": "tsx scripts/spike/media-baseline.ts",
+    "spike:asr": "tsx scripts/spike/asr-baseline.ts"
   },
   "keywords": [],
   "author": "",
