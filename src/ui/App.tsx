@@ -26,7 +26,20 @@ function sourceJump(material: LearningMaterialIR, segment: KnowledgeSegment): st
 }
 
 function isAnalysisFailure(material: LearningMaterialIR): boolean {
-  return material.pipeline.status === 'partial' || material.pipeline.errors.some((error) => error.stage === 'analysis');
+  return material.pipeline.status === 'partial'
+    || material.pipeline.errors.some((error) => error.stage === 'analysis' || error.code === 'ASR_UNAVAILABLE');
+}
+
+function transcriptProvenance(material: LearningMaterialIR): string {
+  const sources = new Set(material.transcript.map((cue) => cue.source));
+  if (sources.has('asr')) return 'ASR';
+  if (sources.has('official')) return 'OFFICIAL';
+  if (sources.has('platform')) return 'PLATFORM';
+  return '—';
+}
+
+function isAsrFailure(material: LearningMaterialIR): boolean {
+  return material.pipeline.errors.some((error) => error.code === 'ASR_UNAVAILABLE');
 }
 
 export function App({ initialMaterial = null, api = learningApi }: AppProps) {
@@ -121,7 +134,7 @@ export function App({ initialMaterial = null, api = learningApi }: AppProps) {
                   <div><dt>Uploader</dt><dd>{material.material.metadata.uploader ?? '—'}</dd></div>
                   <div><dt>Duration</dt><dd>{material.material.metadata.duration_seconds ? `${Math.round(material.material.metadata.duration_seconds / 60)} min` : '—'}</dd></div>
                   <div><dt>Chapters</dt><dd>{material.material.metadata.chapters?.length ?? 0}</dd></div>
-                  <div><dt>Transcript</dt><dd>{material.transcript.length ? `${material.transcript.length} cues` : 'Unavailable'}</dd></div>
+                  <div><dt>Transcript</dt><dd>{material.transcript.length ? <>{material.transcript.length} cues · <span className="transcript-provenance">{transcriptProvenance(material)}</span></> : 'Unavailable'}</dd></div>
                 </dl>
               </div>
             </section>
@@ -142,7 +155,7 @@ export function App({ initialMaterial = null, api = learningApi }: AppProps) {
             </section>
 
             <section className="timeline-section" aria-labelledby="timeline-title">
-              <div className="section-heading timeline-heading"><div><p className="eyebrow">03 / EVIDENCE</p><h2 id="timeline-title">Groundtruth Timeline</h2></div>{isAnalysisFailure(material) && <div className="analysis-warning"><strong>AI analysis failed</strong><button type="button" onClick={handleRetry} disabled={busy}>Retry analysis</button></div>}</div>
+              <div className="section-heading timeline-heading"><div><p className="eyebrow">03 / EVIDENCE</p><h2 id="timeline-title">Groundtruth Timeline</h2></div>{isAnalysisFailure(material) && <div className="analysis-warning"><strong>{isAsrFailure(material) ? 'ASR unavailable' : 'AI analysis failed'}</strong><button type="button" onClick={handleRetry} disabled={busy}>Retry analysis</button></div>}</div>
               {visibleSegments.length ? <div className="timeline-list">{visibleSegments.map((segment) => {
                 const frames = segmentEvidence(material, segment);
                 const cues = segmentCues(material, segment);

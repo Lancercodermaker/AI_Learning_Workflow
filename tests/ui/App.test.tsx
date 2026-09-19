@@ -27,4 +27,24 @@ describe('map-first workbench', () => {
     expect(markup).toContain('Retry analysis');
     expect(markup).toContain('Representative formula frame');
   });
+
+  it('shows ASR transcript provenance', () => {
+    const asrMaterial = structuredClone(material);
+    asrMaterial.transcript[0]!.source = 'asr';
+    const markup = renderToStaticMarkup(<App initialMaterial={asrMaterial} />);
+    expect(markup).toContain('ASR');
+  });
+
+  it('shows a recoverable ASR error and retry action', () => {
+    const failed = structuredClone(material);
+    failed.transcript = [];
+    failed.segments = [];
+    failed.evidence_frames = [];
+    failed.pipeline.status = 'failed';
+    failed.pipeline.current_stage = 'transcript';
+    failed.pipeline.errors = [{ stage: 'transcript', code: 'ASR_UNAVAILABLE', message: 'Pipeline stage transcript failed' }];
+    const markup = renderToStaticMarkup(<App initialMaterial={failed} />);
+    expect(markup).toContain('ASR unavailable');
+    expect(markup).toContain('Retry analysis');
+  });
 });
