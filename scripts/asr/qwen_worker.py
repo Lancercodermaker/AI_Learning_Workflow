@@ -12,6 +12,14 @@ _MODEL: Any = None
 _MODEL_CONFIG: tuple[str, str, str] | None = None
 
 
+def configure_utf8_streams() -> None:
+    """Keep JSONL responses lossless on Windows code pages."""
+    for stream in (sys.stdin, sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8", errors="backslashreplace")
+
+
 def normalize_cues(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     cues: list[dict[str, Any]] = []
     for item in items:
@@ -130,6 +138,7 @@ def handle_request(request: dict[str, Any]) -> dict[str, Any]:
 
 
 def main() -> None:
+    configure_utf8_streams()
     for line in sys.stdin:
         if not line.strip():
             continue

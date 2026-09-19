@@ -1,9 +1,32 @@
 import unittest
+from unittest.mock import patch
 
-from scripts.asr.qwen_worker import normalize_cues, resolve_device
+from scripts.asr.qwen_worker import configure_utf8_streams, normalize_cues, resolve_device
+
+
+class StreamRecorder:
+    def __init__(self):
+        self.encoding = "cp1252"
+        self.errors = "strict"
+
+    def reconfigure(self, *, encoding, errors):
+        self.encoding = encoding
+        self.errors = errors
 
 
 class QwenWorkerUnitTests(unittest.TestCase):
+    def test_configure_utf8_streams_supports_windows_unicode_output(self):
+        stdin = StreamRecorder()
+        stdout = StreamRecorder()
+        stderr = StreamRecorder()
+
+        with patch('scripts.asr.qwen_worker.sys.stdin', stdin), patch('scripts.asr.qwen_worker.sys.stdout', stdout), patch('scripts.asr.qwen_worker.sys.stderr', stderr):
+            configure_utf8_streams()
+
+        self.assertEqual((stdin.encoding, stdin.errors), ('utf-8', 'backslashreplace'))
+        self.assertEqual((stdout.encoding, stdout.errors), ('utf-8', 'backslashreplace'))
+        self.assertEqual((stderr.encoding, stderr.errors), ('utf-8', 'backslashreplace'))
+
     def test_normalize_cues_preserves_timestamp_ranges_and_source(self):
         cues = normalize_cues([
             {"start": 0.0, "end": 1.5, "text": "第一句"},

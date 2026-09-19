@@ -31,3 +31,25 @@ track. The runner stopped at the transcript stage, so it intentionally did not
 fabricate frames, semantic segments, or signal comparisons. See the browser
 acceptance checklist for the exact partial result and the next required source
 condition.
+
+## Local ASR fallback spike
+
+The local fallback can be measured independently with a short local audio file:
+
+```powershell
+$env:ASR_ENABLED = 'true'
+$env:ASR_PYTHON = 'C:\Users\<user>\anaconda3\envs\<env>\python.exe'
+$env:ASR_MODEL = 'Qwen/Qwen3-ASR-0.6B'
+$env:ASR_ALIGNER = 'Qwen/Qwen3-ForcedAligner-0.6B'
+$env:ASR_LANGUAGE = 'Chinese'
+$env:ASR_DEVICE = 'auto'
+npm run spike:asr -- --audio C:\path\to\sample.wav
+```
+
+The command sends two requests through one persistent worker. The first request
+includes lazy model initialization; the second checks warm-worker reuse. Its
+sanitized JSON record contains only model, device, elapsed milliseconds, cue
+counts, and a failure stage. It never records the audio path, transcript text,
+API keys, or model-cache paths. Model weights are downloaded on the first real
+run by `qwen-asr`; if that download fails, fix the local Hugging Face/network
+access and rerun the same command.

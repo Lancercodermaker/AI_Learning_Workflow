@@ -7,3 +7,4 @@ dist/
 !.env.example
 data/
 experiments/*.json
+**/__pycache__/
