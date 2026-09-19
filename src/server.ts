@@ -1,21 +1,46 @@
 import { createServer, type Server } from 'node:http';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { loadAsrConfig, loadProviderConfig } from './app/config';
 import { createHttpHandler } from './app/http';
-import { loadProviderConfig } from './app/config';
 import { MaterialStore } from './domain/material-store';
 import { PipelineError } from './domain/errors';
 import { createGateway } from './llm/gateway';
 import { runPipeline, type PipelineDependencies } from './pipeline/run-pipeline';
 import { createBilibiliClient } from './video/bilibili/client';
+import { createAsrWorkerClient } from './video/asr/worker-client';
+import { createBilibiliAudioResolver, defaultAudioResolverConfig } from './video/media/audio-resolver';
 import { segmentTranscript } from './video/segmentation/segment';
+import { createTranscriptResolver } from './video/transcript/resolve';
 
 export function createLearningServer(rootDir = process.cwd()): Server {
   const store = new MaterialStore(rootDir);
   const bilibili = createBilibiliClient();
+  const asrConfig = loadAsrConfig();
+  const asrWorker = asrConfig.enabled
+    ? createAsrWorkerClient({
+        python: asrConfig.python,
+        workerPath: fileURLToPath(new URL('../scripts/asr/qwen_worker.py', import.meta.url)),
+        model: asrConfig.model,
+        aligner: asrConfig.aligner,
+        language: asrConfig.language,
+        device: asrConfig.device,
+        timeoutMs: asrConfig.timeoutMs,
+      })
+    : null;
+  const audioResolver = asrConfig.enabled
+    ? createBilibiliAudioResolver(defaultAudioResolverConfig(store.getMaterialDir.bind(store), asrConfig.python))
+    : null;
+  const transcriptResolver = createTranscriptResolver({
+    enabled: asrConfig.enabled,
+    language: asrConfig.enabled ? asrConfig.language : 'Chinese',
+  }, {
+    audio: audioResolver ?? { resolve: async () => { throw new PipelineError('transcript', 'NO_TRANSCRIPT', 'Timestamped transcript is required before AI analysis', false); } },
+    asr: asrWorker ?? { transcribe: async () => { throw new PipelineError('transcript', 'NO_TRANSCRIPT', 'Timestamped transcript is required before AI analysis', false); } },
+  });
   const dependencies: PipelineDependencies = {
     store,
     ingest: (bvid) => bilibili.fetchMaterial(bvid),
-    transcript: async (source) => source.subtitleTracks[0]?.cues ?? [],
+    transcript: async (source) => transcriptResolver({ source, materialId: `bilibili:${source.metadata.bvid}` }),
     segmentation: async ({ transcript, chapters, visualBoundaries }) => segmentTranscript({ transcript, chapters, visualBoundaries }),
     evidence: async () => [],
     analysis: async ({ transcript, segments, evidenceFrames }) => {
@@ -34,10 +59,12 @@ export function createLearningServer(rootDir = process.cwd()): Server {
       };
     },
   };
-  return createServer(createHttpHandler({
+  const server = createServer(createHttpHandler({
     store,
     run: (input) => runPipeline({ ...input, dependencies }),
   }));
+  server.on('close', () => asrWorker?.close());
+  return server;
 }
 
 async function main(): Promise<void> {
